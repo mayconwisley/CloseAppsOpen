@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+  release:
+    types: [published]
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore CloseAppsOpen.sln
+
+      - name: Build
+        run: dotnet build CloseAppsOpen.sln --no-restore -c Release
+
+      - name: Test
+        run: dotnet test CloseAppsOpen.sln --no-build -c Release --logger "console;verbosity=normal"
+
+  publish:
+    name: Publish (win-x64)
+    needs: build-and-test
+    if: github.event_name == 'release'
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Publish single-file
+        run: >
+          dotnet publish CloseAppsOpen/CloseAppsOpen.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:Version=${{ github.event.release.tag_name }}
+          -o publish
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: publish/CloseAppsOpen.exe

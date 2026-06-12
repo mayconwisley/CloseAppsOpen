@@ -1,10 +1,27 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <AssemblyName>CloseAppsOpen</AssemblyName>
+    <RootNamespace>CloseAppsOpen</RootNamespace>
+    <Version>1.0.0</Version>
+    <Authors>Maycon Wisley</Authors>
+    <Description>Fecha aplicativos abertos no Windows via linha de comando.</Description>
+    <Copyright>Copyright © 2025 Maycon Wisley</Copyright>
   </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CloseAppsOpen.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

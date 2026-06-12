@@ -1,4 +1,17 @@
-# CloseAppsOpen
+<p align="center">
+  <img src="assets/logo.svg" alt="CloseAppsOpen" width="480"/>
+</p>
+
+<p align="center">
+  <a href="https://github.com/MayconWisley/CloseAppsOpen/actions/workflows/ci.yml">
+    <img src="https://github.com/MayconWisley/CloseAppsOpen/actions/workflows/ci.yml/badge.svg" alt="CI"/>
+  </a>
+  <img src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet" alt=".NET 10"/>
+  <img src="https://img.shields.io/badge/platform-Windows-0078D4?logo=windows" alt="Windows"/>
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT"/>
+</p>
+
+---
 
 Fecha aplicativos abertos no Windows via linha de comando. Suporta modo interativo e uso direto no terminal (ideal para scripts e atalhos no PATH).
 
@@ -88,10 +101,39 @@ Sem argumentos, abre um menu com a lista de aplicativos abertos:
 - Windows
 - [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) — ou publique como self-contained e não precisa de runtime instalado
 
-## Build
+## Build e testes
 
 ```bash
 dotnet build
-dotnet run
+dotnet test
 dotnet run -- --help
+```
+
+## CI / CD
+
+O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) executa automaticamente em cada push e pull request:
+
+| Etapa | Descrição |
+|-------|-----------|
+| **Build** | Compila a solução em modo Release |
+| **Test** | Executa os 26 testes unitários com xUnit |
+| **Publish** | Gera `CloseAppsOpen.exe` self-contained e anexa ao GitHub Release (somente em releases) |
+
+## Estrutura do projeto
+
+```
+CloseAppsOpen/
+├── CloseAppsOpen/
+│   ├── Program.cs          # Ponto de entrada
+│   ├── CliArgs.cs          # Parsing de argumentos CLI
+│   ├── ProcessManager.cs   # Listagem e encerramento de processos
+│   ├── ConsoleUI.cs        # Toda a saída/entrada do console
+│   ├── InteractiveMode.cs  # Menu interativo
+│   └── app.ico             # Ícone do executável
+├── CloseAppsOpen.Tests/
+│   └── CliArgsTests.cs     # Testes unitários (xUnit)
+├── assets/
+│   └── logo.svg            # Logo do projeto
+└── tools/
+    └── generate-icon.ps1   # Script gerador do app.ico
 ```
