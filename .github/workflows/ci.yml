@@ -22,13 +22,13 @@ jobs:
           dotnet-version: "10.0.x"
 
       - name: Restore
-        run: dotnet restore CloseAppsOpen.sln
+        run: dotnet restore CloseAppsOpen.slnx
 
       - name: Build
-        run: dotnet build CloseAppsOpen.sln --no-restore -c Release
+        run: dotnet build CloseAppsOpen.slnx --no-restore -c Release
 
       - name: Test
-        run: dotnet test CloseAppsOpen.sln --no-build -c Release --logger "console;verbosity=normal"
+        run: dotnet test CloseAppsOpen.slnx --no-build -c Release --logger "console;verbosity=normal"
 
   publish:
     name: Publish (win-x64)

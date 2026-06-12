@@ -111,7 +111,7 @@ dotnet run -- --help
 
 ## CI / CD
 
-O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) executa automaticamente em cada push e pull request:
+O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) executa automaticamente em cada push e pull request (usa `CloseAppsOpen.slnx`, formato gerado pelo .NET 10 SDK):
 
 | Etapa | Descrição |
 |-------|-----------|
