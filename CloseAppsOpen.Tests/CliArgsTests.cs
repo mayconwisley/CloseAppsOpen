@@ -13,6 +13,7 @@ public class CliArgsTests
         Assert.False(args.Help);
         Assert.False(args.Version);
         Assert.False(args.CloseAll);
+        Assert.False(args.Shutdown);
         Assert.False(args.List);
         Assert.False(args.Force);
         Assert.Equal(2000, args.Timeout);
@@ -152,6 +153,34 @@ public class CliArgsTests
     {
         var args = CliArgs.Parse(["-e"]);
         Assert.Empty(args.Exclude);
+    }
+
+    [Theory]
+    [InlineData("-s")]
+    [InlineData("--shutdown")]
+    public void Parse_ShutdownFlag_SetsShutdownAndCloseAll(string flag)
+    {
+        var args = CliArgs.Parse([flag]);
+        Assert.True(args.Shutdown);
+        Assert.True(args.CloseAll);
+    }
+
+    [Fact]
+    public void Parse_ShutdownWithForce_SetsBoth()
+    {
+        var args = CliArgs.Parse(["--shutdown", "--force"]);
+        Assert.True(args.Shutdown);
+        Assert.True(args.Force);
+        Assert.True(args.CloseAll);
+    }
+
+    [Fact]
+    public void Parse_ShutdownWithExclude_SetsShutdownAndExclude()
+    {
+        var args = CliArgs.Parse(["--shutdown", "-e", "chrome"]);
+        Assert.True(args.Shutdown);
+        Assert.Single(args.Exclude);
+        Assert.Equal("chrome", args.Exclude[0]);
     }
 
     [Fact]

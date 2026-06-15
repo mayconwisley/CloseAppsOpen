@@ -20,12 +20,32 @@ static class InteractiveMode
                 case ConsoleKey.S:
                     SelectAndClose(processes, cli.Timeout);
                     break;
+                case ConsoleKey.D:
+                    ShutdownAll(processes, cli.Timeout);
+                    return;
                 case ConsoleKey.R:
                     break;
                 case ConsoleKey.Q:
                     return;
             }
         }
+    }
+
+    static void ShutdownAll(List<(int Pid, string Name, string Title)> processes, int timeout)
+    {
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("  ATENÇÃO: Esta ação fechará todos os aplicativos e desligará o PC.");
+        Console.ResetColor();
+
+        if (!ConsoleUI.Confirm("Confirmar desligamento?"))
+            return;
+
+        if (processes.Count > 0)
+            ProcessManager.Close(processes, timeout);
+
+        ConsoleUI.Print("\n  Desligando o PC...", ConsoleColor.Red);
+        PowerManager.Shutdown();
     }
 
     static void SelectAndClose(List<(int Pid, string Name, string Title)> processes, int timeout)

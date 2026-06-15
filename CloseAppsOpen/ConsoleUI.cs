@@ -31,6 +31,7 @@ static class ConsoleUI
         (string Flag, string Desc)[] opts =
         [
             ("-a, --all",             "Fecha todos os aplicativos abertos"),
+            ("-s, --shutdown",        "Fecha tudo e desliga o PC"),
             ("-k, --kill <nome>",     "Fecha processos que contenham <nome> (pode repetir)"),
             ("-l, --list",            "Lista os aplicativos abertos e sai"),
             ("-e, --exclude <nome>",  "Exclui processo pelo nome (pode repetir)"),
@@ -118,6 +119,8 @@ static class ConsoleUI
         Console.WriteLine();
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine("  [A] Fechar Todos    [S] Selecionar    [R] Atualizar    [Q] Sair");
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("  [D] Fechar Tudo e Desligar PC");
         Console.ResetColor();
         Console.Write("\n  Opção: ");
     }

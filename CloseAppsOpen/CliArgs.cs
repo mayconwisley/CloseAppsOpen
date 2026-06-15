@@ -5,6 +5,7 @@ sealed class CliArgs
 	public bool Help { get; private set; }
 	public bool Version { get; private set; }
 	public bool CloseAll { get; private set; }
+	public bool Shutdown { get; private set; }
 	public bool List { get; private set; }
 	public bool Force { get; private set; }
 	public int Timeout { get; private set; } = 2000;
@@ -21,6 +22,7 @@ sealed class CliArgs
 				case "-h": case "--help": a.Help = true; break;
 				case "-v": case "--version": a.Version = true; break;
 				case "-a": case "--all": a.CloseAll = true; break;
+				case "-s": case "--shutdown": a.Shutdown = true; a.CloseAll = true; break;
 				case "-l": case "--list": a.List = true; break;
 				case "-f": case "--force": a.Force = true; break;
 				case "-t":

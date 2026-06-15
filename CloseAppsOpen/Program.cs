@@ -25,14 +25,27 @@ if (cli.List)
 if (cli.CloseAll)
 {
 	var procs = ProcessManager.GetVisible(cli.Exclude);
-	if (procs.Count == 0)
+	string action = cli.Shutdown ? "Fechar todos e DESLIGAR o PC" : $"Fechar todos os {procs.Count} aplicativo(s)";
+
+	if (procs.Count == 0 && !cli.Shutdown)
 	{
 		ConsoleUI.Print("Nenhum aplicativo encontrado.", ConsoleColor.Yellow);
 		return 0;
 	}
-	if (!cli.Force && !ConsoleUI.Confirm($"Fechar todos os {procs.Count} aplicativo(s)?"))
+
+	if (!cli.Force && !ConsoleUI.Confirm(action))
 		return 0;
-	return ProcessManager.Close(procs, cli.Timeout) ? 0 : 1;
+
+	if (procs.Count > 0)
+		ProcessManager.Close(procs, cli.Timeout);
+
+	if (cli.Shutdown)
+	{
+		ConsoleUI.Print("  Desligando o PC...", ConsoleColor.Red);
+		PowerManager.Shutdown();
+	}
+
+	return 0;
 }
 
 if (cli.Kill.Count > 0)

@@ -40,6 +40,7 @@ closeappsopen [opções]
 | Flag | Descrição |
 |------|-----------|
 | `-a, --all` | Fecha todos os aplicativos abertos |
+| `-s, --shutdown` | Fecha tudo e desliga o PC |
 | `-k, --kill <nome>` | Fecha processos que contenham `<nome>` (pode repetir) |
 | `-l, --list` | Lista os aplicativos abertos e sai |
 | `-e, --exclude <nome>` | Exclui processo pelo nome (pode repetir) |
@@ -74,6 +75,15 @@ closeappsopen -a -e chrome -e slack
 
 # Aguarda 5 segundos antes de forçar o encerramento
 closeappsopen --timeout 5000 --all
+
+# Fecha tudo e desliga o PC (com confirmação)
+closeappsopen --shutdown
+
+# Fecha tudo e desliga sem perguntar
+closeappsopen --shutdown --force
+
+# Fecha tudo exceto Chrome e desliga
+closeappsopen --shutdown -e chrome
 ```
 
 ## Modo interativo
@@ -84,6 +94,7 @@ Sem argumentos, abre um menu com a lista de aplicativos abertos:
 |-------|------|
 | `A` | Fecha todos os aplicativos listados |
 | `S` | Seleciona quais fechar (por número, nome ou `todos`) |
+| `D` | Fecha tudo e desliga o PC |
 | `R` | Atualiza a lista |
 | `Q` | Sai |
 
@@ -116,7 +127,7 @@ O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) executa automa
 | Etapa | Descrição |
 |-------|-----------|
 | **Build** | Compila a solução em modo Release |
-| **Test** | Executa os 26 testes unitários com xUnit |
+| **Test** | Executa os 30 testes unitários com xUnit |
 | **Publish** | Gera `CloseAppsOpen.exe` self-contained e anexa ao GitHub Release (somente em releases) |
 
 ## Estrutura do projeto
@@ -127,6 +138,7 @@ CloseAppsOpen/
 │   ├── Program.cs          # Ponto de entrada
 │   ├── CliArgs.cs          # Parsing de argumentos CLI
 │   ├── ProcessManager.cs   # Listagem e encerramento de processos
+│   ├── PowerManager.cs     # Desligamento do PC
 │   ├── ConsoleUI.cs        # Toda a saída/entrada do console
 │   ├── InteractiveMode.cs  # Menu interativo
 │   └── app.ico             # Ícone do executável
