@@ -7,12 +7,14 @@ static class ProcessManager
 	public static List<(int Pid, string Name, string Title)> GetVisible(IEnumerable<string> exclude)
 	{
 		var excluded = new HashSet<string>(exclude, StringComparer.OrdinalIgnoreCase);
+		int selfPid = Environment.ProcessId;
 		return Process.GetProcesses()
 			.Where(p =>
 			{
 				try
 				{
-					return p.MainWindowHandle != IntPtr.Zero
+					return p.Id != selfPid
+						&& p.MainWindowHandle != IntPtr.Zero
 						&& !string.IsNullOrWhiteSpace(p.MainWindowTitle)
 						&& !excluded.Contains(p.ProcessName);
 				}
