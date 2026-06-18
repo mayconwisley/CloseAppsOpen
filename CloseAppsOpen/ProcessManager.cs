@@ -1,19 +1,43 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace CloseAppsOpen;
 
 static class ProcessManager
 {
+	[DllImport("kernel32.dll")]
+	private static extern IntPtr GetConsoleWindow();
+
+	[DllImport("user32.dll")]
+	private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+	// PID do terminal que hospeda este processo (Windows Terminal, conhost,
+	// cmd, powershell...). Precisa ser excluído ou fecharíamos a janela que
+	// está rodando o próprio app antes de terminar de fechar os demais.
+	private static int ConsoleHostPid()
+	{
+		try
+		{
+			IntPtr hwnd = GetConsoleWindow();
+			if (hwnd == IntPtr.Zero) return -1;
+			GetWindowThreadProcessId(hwnd, out uint pid);
+			return (int)pid;
+		}
+		catch { return -1; }
+	}
+
 	public static List<(int Pid, string Name, string Title)> GetVisible(IEnumerable<string> exclude)
 	{
 		var excluded = new HashSet<string>(exclude, StringComparer.OrdinalIgnoreCase);
 		int selfPid = Environment.ProcessId;
+		int hostPid = ConsoleHostPid();
 		return Process.GetProcesses()
 			.Where(p =>
 			{
 				try
 				{
 					return p.Id != selfPid
+						&& p.Id != hostPid
 						&& p.MainWindowHandle != IntPtr.Zero
 						&& !string.IsNullOrWhiteSpace(p.MainWindowTitle)
 						&& !excluded.Contains(p.ProcessName);
