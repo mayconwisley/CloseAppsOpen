@@ -35,7 +35,7 @@ static class ConsoleUI
             ("-k, --kill <nome>",     "Fecha processos que contenham <nome> (pode repetir)"),
             ("-l, --list",            "Lista os aplicativos abertos e sai"),
             ("-e, --exclude <nome>",  "Exclui processo pelo nome (pode repetir)"),
-            ("-f, --force",           "Não pede confirmação"),
+            ("-f, --force",           "Mata direto (Kill), sem confirmação nem fechamento gentil"),
             ("-t, --timeout <ms>",    "Tempo antes de forçar encerramento (padrão: 2000ms)"),
             ("-v, --version",         "Exibe a versão"),
             ("-h, --help",            "Exibe esta ajuda"),
@@ -55,7 +55,7 @@ static class ConsoleUI
         Console.WriteLine("  closeappsopen                        Abre o menu interativo");
         Console.WriteLine("  closeappsopen --list                 Lista os apps abertos");
         Console.WriteLine("  closeappsopen --all                  Fecha tudo (com confirmação)");
-        Console.WriteLine("  closeappsopen --all --force          Fecha tudo sem perguntar");
+        Console.WriteLine("  closeappsopen --all --force          Mata tudo na hora, sem perguntar");
         Console.WriteLine("  closeappsopen --kill chrome          Fecha processos com 'chrome' no nome");
         Console.WriteLine("  closeappsopen --all -e explorer      Fecha tudo exceto o Explorer");
         Console.WriteLine("  closeappsopen -a -e chrome -e slack  Fecha tudo exceto Chrome e Slack");

@@ -37,7 +37,7 @@ if (cli.CloseAll)
 		return 0;
 
 	if (procs.Count > 0)
-		ProcessManager.Close(procs, cli.Timeout);
+		ProcessManager.Close(procs, cli.Timeout, cli.Force);
 
 	if (cli.Shutdown)
 	{
@@ -64,7 +64,7 @@ if (cli.Kill.Count > 0)
 	ConsoleUI.PrintProcessList(targets);
 	if (!cli.Force && !ConsoleUI.Confirm($"Fechar {targets.Count} processo(s) acima?"))
 		return 0;
-	return ProcessManager.Close(targets, cli.Timeout) ? 0 : 1;
+	return ProcessManager.Close(targets, cli.Timeout, cli.Force) ? 0 : 1;
 }
 
 InteractiveMode.Run(cli);

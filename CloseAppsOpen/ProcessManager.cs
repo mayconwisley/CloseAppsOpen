@@ -106,7 +106,7 @@ static class ProcessManager
 			.ToList();
 	}
 
-	public static bool Close(List<(int Pid, string Name, string Title)> targets, int timeout)
+	public static bool Close(List<(int Pid, string Name, string Title)> targets, int timeout, bool force = false)
 	{
 		Console.WriteLine();
 		int closed = 0, failed = 0;
@@ -116,8 +116,21 @@ static class ProcessManager
 			try
 			{
 				var p = Process.GetProcessById(pid);
-				p.CloseMainWindow();
-				if (!p.WaitForExit(timeout)) p.Kill();
+				if (force)
+				{
+					// Encerramento imediato: não envia WM_CLOSE, então apps como
+					// o Office NÃO exibem o diálogo "Salvar alterações?". Em troca,
+					// descarta qualquer trabalho não salvo sem aviso.
+					p.Kill();
+					p.WaitForExit(timeout);
+				}
+				else
+				{
+					// Fechamento gentil (equivale a clicar no X): dá ao app a chance
+					// de pedir confirmação. Só força (Kill) se não sair no timeout.
+					p.CloseMainWindow();
+					if (!p.WaitForExit(timeout)) p.Kill();
+				}
 				Console.ForegroundColor = ConsoleColor.Green;
 				Console.WriteLine($"  ✓ {name} — {title}");
 				closed++;

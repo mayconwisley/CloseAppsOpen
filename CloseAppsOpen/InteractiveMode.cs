@@ -14,14 +14,14 @@ static class InteractiveMode
             {
                 case ConsoleKey.A:
                     if (processes.Count > 0 && ConsoleUI.Confirm($"Fechar todos os {processes.Count} aplicativo(s)?"))
-                        ProcessManager.Close(processes, cli.Timeout);
+                        ProcessManager.Close(processes, cli.Timeout, cli.Force);
                     if (processes.Count > 0) ConsoleUI.WaitKey();
                     break;
                 case ConsoleKey.S:
-                    SelectAndClose(processes, cli.Timeout);
+                    SelectAndClose(processes, cli.Timeout, cli.Force);
                     break;
                 case ConsoleKey.D:
-                    ShutdownAll(processes, cli.Timeout);
+                    ShutdownAll(processes, cli.Timeout, cli.Force);
                     return;
                 case ConsoleKey.R:
                     break;
@@ -31,7 +31,7 @@ static class InteractiveMode
         }
     }
 
-    static void ShutdownAll(List<(int Pid, string Name, string Title)> processes, int timeout)
+    static void ShutdownAll(List<(int Pid, string Name, string Title)> processes, int timeout, bool force)
     {
         Console.WriteLine();
         Console.ForegroundColor = ConsoleColor.Red;
@@ -42,13 +42,13 @@ static class InteractiveMode
             return;
 
         if (processes.Count > 0)
-            ProcessManager.Close(processes, timeout);
+            ProcessManager.Close(processes, timeout, force);
 
         ConsoleUI.Print("\n  Desligando o PC...", ConsoleColor.Red);
         PowerManager.Shutdown();
     }
 
-    static void SelectAndClose(List<(int Pid, string Name, string Title)> processes, int timeout)
+    static void SelectAndClose(List<(int Pid, string Name, string Title)> processes, int timeout, bool force)
     {
         if (processes.Count == 0) return;
 
@@ -87,7 +87,7 @@ static class InteractiveMode
         }
 
         if (ConsoleUI.Confirm($"Fechar {selected.Count} processo(s)?"))
-            ProcessManager.Close(selected, timeout);
+            ProcessManager.Close(selected, timeout, force);
         ConsoleUI.WaitKey();
     }
 }

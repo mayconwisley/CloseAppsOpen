@@ -44,7 +44,7 @@ closeappsopen [opções]
 | `-k, --kill <nome>` | Fecha processos que contenham `<nome>` (pode repetir) |
 | `-l, --list` | Lista os aplicativos abertos e sai |
 | `-e, --exclude <nome>` | Exclui processo pelo nome (pode repetir) |
-| `-f, --force` | Não pede confirmação |
+| `-f, --force` | Mata direto (`Kill`), sem confirmação nem fechamento gentil |
 | `-t, --timeout <ms>` | Tempo antes de forçar encerramento (padrão: `2000`) |
 | `-v, --version` | Exibe a versão |
 | `-h, --help` | Exibe a ajuda |
@@ -61,7 +61,7 @@ closeappsopen --list
 # Fecha tudo com confirmação
 closeappsopen --all
 
-# Fecha tudo sem perguntar
+# Mata tudo na hora (Kill direto), sem perguntar nem dar chance de salvar
 closeappsopen --all --force
 
 # Fecha processos com 'chrome' no nome ou título
@@ -101,9 +101,9 @@ Sem argumentos, abre um menu com a lista de aplicativos abertos:
 ## Comportamento
 
 - Lista apenas janelas visíveis com título
-- Tenta fechar graciosamente (`CloseMainWindow`) antes de forçar (`Kill`)
+- Por padrão tenta fechar graciosamente (`CloseMainWindow`) antes de forçar (`Kill`)
 - Aguarda o tempo configurado em `--timeout` antes de forçar
-- Pede confirmação antes de fechar (exceto com `--force`)
+- Com `--force`, mata direto (`Kill`) sem `CloseMainWindow` — não pede confirmação **e** não dispara diálogos de "salvar?" (descarta trabalho não salvo)
 - Exibe o resultado com quantos foram fechados e quantos falharam
 - Retorna código de saída `0` em sucesso e `1` em falha (útil em scripts)
 
