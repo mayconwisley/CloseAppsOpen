@@ -13,7 +13,8 @@ if (cli.Help)
 
 if (cli.Version)
 {
-	Console.WriteLine("CloseAppsOpen v1.0.0");
+	var version = typeof(CliArgs).Assembly.GetName().Version?.ToString(3) ?? "desconhecida";
+	Console.WriteLine($"CloseAppsOpen v{version}");
 	return 0;
 }
 if (cli.List)

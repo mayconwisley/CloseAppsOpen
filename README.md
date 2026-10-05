@@ -3,9 +3,6 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/MayconWisley/CloseAppsOpen/actions/workflows/ci.yml">
-    <img src="https://github.com/MayconWisley/CloseAppsOpen/actions/workflows/ci.yml/badge.svg" alt="CI"/>
-  </a>
   <img src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet" alt=".NET 10"/>
   <img src="https://img.shields.io/badge/platform-Windows-0078D4?logo=windows" alt="Windows"/>
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT"/>
@@ -120,15 +117,25 @@ dotnet test
 dotnet run -- --help
 ```
 
-## CI / CD
+## Publicar uma release
 
-O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) executa automaticamente em cada push e pull request (usa `CloseAppsOpen.slnx`, formato gerado pelo .NET 10 SDK):
+A compilação, os testes e o empacotamento acontecem nesta máquina. O GitHub recebe somente a tag e os artefatos prontos; não há workflow de build no GitHub Actions.
 
-| Etapa | Descrição |
-|-------|-----------|
-| **Build** | Compila a solução em modo Release |
-| **Test** | Executa os 30 testes unitários com xUnit |
-| **Publish** | Gera `CloseAppsOpen.exe` self-contained e anexa ao GitHub Release (somente em releases) |
+Pré-requisitos: Windows, .NET 10 SDK, Git e [GitHub CLI](https://cli.github.com/) autenticado com acesso de escrita ao repositório (`gh auth login`). Atualize `<Version>` em `CloseAppsOpen/CloseAppsOpen.csproj`, faça commit e envie a branch ao `origin` antes de publicar.
+
+Para preparar e verificar os arquivos localmente, sem criar tag ou release:
+
+```powershell
+.\tools\publish-release.ps1 -Tag v1.0.0 -PrepareOnly
+```
+
+Para publicar:
+
+```powershell
+.\tools\publish-release.ps1 -Tag v1.0.0
+```
+
+O script exige que a tag corresponda à versão do projeto e que o commit local já esteja no `origin`. Ele executa os testes, publica um executável `win-x64` independente do runtime .NET, verifica a versão do binário, cria o ZIP e o arquivo SHA-256 em `.artifacts/releases/<tag>/`, envia uma tag anotada e cria a GitHub Release com esses dois arquivos. Se o envio da tag funcionar, mas a criação da release falhar, execute o mesmo comando novamente após corrigir a falha.
 
 ## Estrutura do projeto
 
