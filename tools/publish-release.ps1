@@ -111,7 +111,7 @@ if ($LASTEXITCODE -ne 0 -or $reportedVersion -ne "CloseAppsOpen $Tag") {
 
 $archive = Join-Path $artifactDirectory "CloseAppsOpen-$Tag-win-x64.zip"
 $checksumFile = Join-Path $artifactDirectory 'SHA256SUMS.txt'
-Compress-Archive -LiteralPath $executable -DestinationPath $archive -Force
+Compress-Archive -LiteralPath @($executable, (Join-Path $repositoryRoot 'LICENSE.txt')) -DestinationPath $archive -Force
 $checksum = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
 Set-Content -LiteralPath $checksumFile -Value "$checksum  $(Split-Path $archive -Leaf)" -Encoding ascii
 

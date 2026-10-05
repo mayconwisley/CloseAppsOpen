@@ -14,7 +14,9 @@ Fecha aplicativos abertos no Windows via linha de comando. Suporta modo interati
 
 ## Instalação no PATH
 
-Publique o executável e adicione ao PATH do Windows:
+Baixe o ZIP da [versão mais recente](https://github.com/mayconwisley/CloseAppsOpen/releases/latest), extraia `CloseAppsOpen.exe` e adicione a pasta ao PATH do Windows. O executável distribuído é independente da instalação do .NET.
+
+Para compilar a partir do código-fonte:
 
 ```powershell
 dotnet publish CloseAppsOpen\CloseAppsOpen.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
@@ -135,7 +137,15 @@ Para publicar:
 .\tools\publish-release.ps1 -Tag v1.0.0
 ```
 
-O script exige que a tag corresponda à versão do projeto e que a branch padrão local esteja sincronizada com o `origin`. Ele executa os testes, publica um executável `win-x64` independente do runtime .NET, verifica a versão do binário, cria o ZIP e o arquivo SHA-256 em `.artifacts/releases/<tag>/`, envia uma tag anotada e cria a GitHub Release com esses dois arquivos. Se o envio da tag funcionar, mas a criação da release falhar, execute o mesmo comando novamente após corrigir a falha.
+O script exige que a tag corresponda à versão do projeto e que a branch padrão local esteja sincronizada com o `origin`. Ele executa os testes, publica um executável `win-x64` independente do runtime .NET, verifica a versão do binário, cria o ZIP com a licença MIT e o arquivo SHA-256 em `.artifacts/releases/<tag>/`, envia uma tag anotada e cria a GitHub Release com esses dois arquivos. Se o envio da tag funcionar, mas a criação da release falhar, execute o mesmo comando novamente após corrigir a falha.
+
+## Contribuindo
+
+Correções e melhorias são bem-vindas. Consulte o [guia de contribuição](CONTRIBUTING.md) antes de abrir um pull request.
+
+## Licença
+
+Este projeto é distribuído sob a [licença MIT](LICENSE.txt). O aviso de copyright e o texto da licença devem acompanhar as cópias distribuídas.
 
 ## Estrutura do projeto
 
