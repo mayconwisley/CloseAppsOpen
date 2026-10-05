@@ -121,7 +121,7 @@ dotnet run -- --help
 
 A compilação, os testes e o empacotamento acontecem nesta máquina. O GitHub recebe somente a tag e os artefatos prontos; não há workflow de build no GitHub Actions.
 
-Pré-requisitos: Windows, .NET 10 SDK, Git e [GitHub CLI](https://cli.github.com/) autenticado com acesso de escrita ao repositório (`gh auth login`). Atualize `<Version>` em `CloseAppsOpen/CloseAppsOpen.csproj`, faça commit e envie a branch ao `origin` antes de publicar.
+Pré-requisitos: Windows, .NET 10 SDK, Git e [GitHub CLI](https://cli.github.com/) autenticado com acesso de escrita ao repositório (`gh auth login`). Atualize `<Version>` em `CloseAppsOpen/CloseAppsOpen.csproj`, faça commit e envie a branch padrão ao `origin` antes de publicar.
 
 Para preparar e verificar os arquivos localmente, sem criar tag ou release:
 
@@ -135,7 +135,7 @@ Para publicar:
 .\tools\publish-release.ps1 -Tag v1.0.0
 ```
 
-O script exige que a tag corresponda à versão do projeto e que o commit local já esteja no `origin`. Ele executa os testes, publica um executável `win-x64` independente do runtime .NET, verifica a versão do binário, cria o ZIP e o arquivo SHA-256 em `.artifacts/releases/<tag>/`, envia uma tag anotada e cria a GitHub Release com esses dois arquivos. Se o envio da tag funcionar, mas a criação da release falhar, execute o mesmo comando novamente após corrigir a falha.
+O script exige que a tag corresponda à versão do projeto e que a branch padrão local esteja sincronizada com o `origin`. Ele executa os testes, publica um executável `win-x64` independente do runtime .NET, verifica a versão do binário, cria o ZIP e o arquivo SHA-256 em `.artifacts/releases/<tag>/`, envia uma tag anotada e cria a GitHub Release com esses dois arquivos. Se o envio da tag funcionar, mas a criação da release falhar, execute o mesmo comando novamente após corrigir a falha.
 
 ## Estrutura do projeto
 

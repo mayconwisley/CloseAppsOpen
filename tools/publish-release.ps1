@@ -54,6 +54,15 @@ if (-not $PrepareOnly) {
         throw 'A publicação exige uma branch local, não um HEAD destacado.'
     }
 
+    $defaultBranch = ((& gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name') | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0 -or -not $defaultBranch) {
+        throw 'Não foi possível identificar a branch padrão do repositório.'
+    }
+
+    if ($branch -ne $defaultBranch) {
+        throw "Publique somente a partir da branch padrão ($defaultBranch). Branch atual: $branch."
+    }
+
     $headCommit = ((& git rev-parse HEAD) | Out-String).Trim()
     $remoteLine = ((& git ls-remote origin "refs/heads/$branch") | Out-String).Trim()
     if ($LASTEXITCODE -ne 0 -or -not $remoteLine) {
