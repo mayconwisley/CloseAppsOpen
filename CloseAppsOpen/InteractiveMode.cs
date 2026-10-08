@@ -2,8 +2,9 @@ namespace CloseAppsOpen;
 
 static class InteractiveMode
 {
-    public static void Run(CliArgs cli)
+    public static bool Run(CliArgs cli)
     {
+        bool succeeded = true;
         while (true)
         {
             var processes = ProcessManager.GetVisible(cli.Exclude);
@@ -14,24 +15,23 @@ static class InteractiveMode
             {
                 case ConsoleKey.A:
                     if (processes.Count > 0 && ConsoleUI.Confirm($"Fechar todos os {processes.Count} aplicativo(s)?"))
-                        ProcessManager.Close(processes, cli.Timeout, cli.Force);
+                        succeeded &= ProcessManager.Close(processes, cli.Timeout, cli.Force);
                     if (processes.Count > 0) ConsoleUI.WaitKey();
                     break;
                 case ConsoleKey.S:
-                    SelectAndClose(processes, cli.Timeout, cli.Force);
+                    succeeded &= SelectAndClose(processes, cli.Timeout, cli.Force);
                     break;
                 case ConsoleKey.D:
-                    ShutdownAll(processes, cli.Timeout, cli.Force);
-                    return;
+                    return ShutdownAll(processes, cli.Timeout, cli.Force) && succeeded;
                 case ConsoleKey.R:
                     break;
                 case ConsoleKey.Q:
-                    return;
+                    return succeeded;
             }
         }
     }
 
-    static void ShutdownAll(List<(int Pid, string Name, string Title)> processes, int timeout, bool force)
+    static bool ShutdownAll(List<(int Pid, string Name, string Title)> processes, int timeout, bool force)
     {
         Console.WriteLine();
         Console.ForegroundColor = ConsoleColor.Red;
@@ -39,24 +39,30 @@ static class InteractiveMode
         Console.ResetColor();
 
         if (!ConsoleUI.Confirm("Confirmar desligamento?"))
-            return;
+            return true;
 
-        if (processes.Count > 0)
-            ProcessManager.Close(processes, timeout, force);
-
-        ConsoleUI.Print("\n  Desligando o PC...", ConsoleColor.Red);
-        PowerManager.Shutdown();
+        bool succeeded = CloseWorkflow.Run(
+            () => processes.Count == 0 || ProcessManager.Close(processes, timeout, force),
+            shutdown: true,
+            powerOff: () =>
+            {
+                ConsoleUI.Print("\n  Desligando o PC...", ConsoleColor.Red);
+                return PowerManager.Shutdown();
+            });
+        if (!succeeded)
+            ConsoleUI.Print("  Desligamento cancelado ou não iniciado: houve falha no fechamento ou no comando de desligamento.", ConsoleColor.Red);
+        return succeeded;
     }
 
-    static void SelectAndClose(List<(int Pid, string Name, string Title)> processes, int timeout, bool force)
+    static bool SelectAndClose(List<(int Pid, string Name, string Title)> processes, int timeout, bool force)
     {
-        if (processes.Count == 0) return;
+        if (processes.Count == 0) return true;
 
         Console.WriteLine();
         Console.WriteLine("  Números separados por vírgula (ex: 1,3,5), nome do processo ou 'todos':");
         Console.Write("  > ");
         string? input = Console.ReadLine()?.Trim();
-        if (string.IsNullOrWhiteSpace(input)) return;
+        if (string.IsNullOrWhiteSpace(input)) return true;
 
         List<(int Pid, string Name, string Title)> selected;
 
@@ -70,24 +76,25 @@ static class InteractiveMode
                 .Select(s => int.TryParse(s.Trim(), out int n) ? n : -1)
                 .Where(n => n >= 1 && n <= processes.Count)
                 .Select(n => processes[n - 1])
+                .DistinctBy(p => p.Pid)
                 .ToList();
 
             selected = byNumber.Count > 0
                 ? byNumber
-                : processes.Where(p =>
-                    p.Name.Contains(input, StringComparison.OrdinalIgnoreCase) ||
-                    p.Title.Contains(input, StringComparison.OrdinalIgnoreCase)).ToList();
+                : ProcessSelection.ByFilter(processes, [input]);
         }
 
         if (selected.Count == 0)
         {
             ConsoleUI.Print("  Nenhum item válido selecionado.", ConsoleColor.Red);
             ConsoleUI.WaitKey();
-            return;
+            return true;
         }
 
+        bool succeeded = true;
         if (ConsoleUI.Confirm($"Fechar {selected.Count} processo(s)?"))
-            ProcessManager.Close(selected, timeout, force);
+            succeeded = ProcessManager.Close(selected, timeout, force);
         ConsoleUI.WaitKey();
+        return succeeded;
     }
 }

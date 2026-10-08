@@ -77,17 +77,15 @@ public class CliArgsTests
     }
 
     [Fact]
-    public void Parse_TimeoutWithInvalidValue_KeepsDefault()
+    public void Parse_TimeoutWithInvalidValue_Throws()
     {
-        var args = CliArgs.Parse(["-t", "notanumber"]);
-        Assert.Equal(2000, args.Timeout);
+        Assert.Throws<ArgumentException>(() => CliArgs.Parse(["-t", "notanumber"]));
     }
 
     [Fact]
-    public void Parse_TimeoutWithoutValue_KeepsDefault()
+    public void Parse_TimeoutWithoutValue_Throws()
     {
-        var args = CliArgs.Parse(["-t"]);
-        Assert.Equal(2000, args.Timeout);
+        Assert.Throws<ArgumentException>(() => CliArgs.Parse(["-t"]));
     }
 
     [Theory]
@@ -142,17 +140,37 @@ public class CliArgsTests
     }
 
     [Fact]
-    public void Parse_KillWithoutValue_DoesNotAdd()
+    public void Parse_KillWithoutValue_Throws()
     {
-        var args = CliArgs.Parse(["-k"]);
-        Assert.Empty(args.Kill);
+        Assert.Throws<ArgumentException>(() => CliArgs.Parse(["-k"]));
     }
 
     [Fact]
-    public void Parse_ExcludeWithoutValue_DoesNotAdd()
+    public void Parse_ExcludeWithoutValue_Throws()
     {
-        var args = CliArgs.Parse(["-e"]);
-        Assert.Empty(args.Exclude);
+        Assert.Throws<ArgumentException>(() => CliArgs.Parse(["-e"]));
+    }
+
+    [Theory]
+    [InlineData("--kill", "")]
+    [InlineData("--kill", "   ")]
+    [InlineData("--exclude", "")]
+    [InlineData("--timeout", "-1")]
+    [InlineData("--timeout", "--all")]
+    [InlineData("--kill", "--force")]
+    public void Parse_InvalidOptionValue_Throws(string option, string value)
+    {
+        Assert.Throws<ArgumentException>(() => CliArgs.Parse([option, value]));
+    }
+
+    [Theory]
+    [InlineData("--all", "--kill", "chrome")]
+    [InlineData("--shutdown", "--list", "")]
+    [InlineData("--list", "--kill", "chrome")]
+    public void Parse_ConflictingActions_Throws(string first, string second, string value)
+    {
+        string[] arguments = value.Length == 0 ? [first, second] : [first, second, value];
+        Assert.Throws<ArgumentException>(() => CliArgs.Parse(arguments));
     }
 
     [Theory]

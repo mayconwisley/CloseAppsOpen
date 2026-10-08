@@ -4,13 +4,23 @@ namespace CloseAppsOpen;
 
 static class PowerManager
 {
-    public static void Shutdown(int delaySeconds = 0)
+    public static bool Shutdown(int delaySeconds = 0)
     {
-        Process.Start(new ProcessStartInfo("shutdown", $"/s /t {delaySeconds} /c \"Desligando via CloseAppsOpen\"")
+        try
         {
-            CreateNoWindow = true,
-            UseShellExecute = false
-        });
+            using var process = Process.Start(new ProcessStartInfo("shutdown", $"/s /t {delaySeconds} /c \"Desligando via CloseAppsOpen\"")
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false
+            });
+            if (process is null) return false;
+            process.WaitForExit();
+            return process.ExitCode == 0;
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            return false;
+        }
     }
 
     public static void CancelShutdown()

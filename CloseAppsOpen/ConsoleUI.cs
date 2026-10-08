@@ -36,7 +36,7 @@ static class ConsoleUI
             ("-l, --list",            "Lista os aplicativos abertos e sai"),
             ("-e, --exclude <nome>",  "Exclui processo pelo nome (pode repetir)"),
             ("-f, --force",           "Mata direto (Kill), sem confirmação nem fechamento gentil"),
-            ("-t, --timeout <ms>",    "Tempo antes de forçar encerramento (padrão: 2000ms)"),
+            ("-t, --timeout <ms>",    "Espera pelo fechamento; não força (padrão: 2000ms)"),
             ("-v, --version",         "Exibe a versão"),
             ("-h, --help",            "Exibe esta ajuda"),
         ];
@@ -59,7 +59,7 @@ static class ConsoleUI
         Console.WriteLine("  closeappsopen --kill chrome          Fecha processos com 'chrome' no nome");
         Console.WriteLine("  closeappsopen --all -e explorer      Fecha tudo exceto o Explorer");
         Console.WriteLine("  closeappsopen -a -e chrome -e slack  Fecha tudo exceto Chrome e Slack");
-        Console.WriteLine("  closeappsopen --timeout 5000 --all   Aguarda 5s antes de forçar");
+        Console.WriteLine("  closeappsopen --timeout 5000 --all   Aguarda até 5s pelo fechamento");
     }
 
     public static void PrintProcessList(List<(int Pid, string Name, string Title)> processes)

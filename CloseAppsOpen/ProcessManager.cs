@@ -87,23 +87,26 @@ static class ProcessManager
 		// confiável de identificar e excluir justamente o terminal que nos hospeda.
 		string ownTitle = SafeConsoleTitle();
 
-		return Process.GetProcesses()
-			.Where(p =>
+		var visible = new List<(int Pid, string Name, string Title)>();
+		foreach (var process in Process.GetProcesses())
+		{
+			using (process)
 			{
 				try
 				{
-					return p.Id != selfPid
-						&& !ancestors.Contains(p.Id)
-						&& p.MainWindowHandle != IntPtr.Zero
-						&& !string.IsNullOrWhiteSpace(p.MainWindowTitle)
-						&& !(ownTitle.Length > 0 && p.MainWindowTitle == ownTitle)
-						&& !excluded.Contains(p.ProcessName);
+					if (process.Id == selfPid || ancestors.Contains(process.Id) ||
+						process.MainWindowHandle == IntPtr.Zero || excluded.Contains(process.ProcessName))
+						continue;
+
+					string title = process.MainWindowTitle;
+					if (!string.IsNullOrWhiteSpace(title) && (ownTitle.Length == 0 || title != ownTitle))
+						visible.Add((process.Id, process.ProcessName, title));
 				}
-				catch { return false; }
-			})
-			.OrderBy(p => p.MainWindowTitle)
-			.Select(p => (p.Id, p.ProcessName, p.MainWindowTitle))
-			.ToList();
+				catch { /* Processo encerrado ou inacessível durante a listagem. */ }
+			}
+		}
+
+		return visible.OrderBy(p => p.Title).ToList();
 	}
 
 	public static bool Close(List<(int Pid, string Name, string Title)> targets, int timeout, bool force = false)
@@ -115,21 +118,13 @@ static class ProcessManager
 		{
 			try
 			{
-				var p = Process.GetProcessById(pid);
-				if (force)
+				using var p = Process.GetProcessById(pid);
+				if (!ProcessTermination.TryClose(new SystemProcessControl(p), timeout, force))
 				{
-					// Encerramento imediato: não envia WM_CLOSE, então apps como
-					// o Office NÃO exibem o diálogo "Salvar alterações?". Em troca,
-					// descarta qualquer trabalho não salvo sem aviso.
-					p.Kill();
-					p.WaitForExit(timeout);
-				}
-				else
-				{
-					// Fechamento gentil (equivale a clicar no X): dá ao app a chance
-					// de pedir confirmação. Só força (Kill) se não sair no timeout.
-					p.CloseMainWindow();
-					if (!p.WaitForExit(timeout)) p.Kill();
+					Console.ForegroundColor = ConsoleColor.Yellow;
+					Console.WriteLine($"  ! {name} — ainda aberto (tempo limite de {timeout} ms)");
+					failed++;
+					continue;
 				}
 				Console.ForegroundColor = ConsoleColor.Green;
 				Console.WriteLine($"  ✓ {name} — {title}");

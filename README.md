@@ -44,7 +44,7 @@ closeappsopen [opções]
 | `-l, --list` | Lista os aplicativos abertos e sai |
 | `-e, --exclude <nome>` | Exclui processo pelo nome (pode repetir) |
 | `-f, --force` | Mata direto (`Kill`), sem confirmação nem fechamento gentil |
-| `-t, --timeout <ms>` | Tempo antes de forçar encerramento (padrão: `2000`) |
+| `-t, --timeout <ms>` | Tempo para aguardar o fechamento sem forçar (padrão: `2000`) |
 | `-v, --version` | Exibe a versão |
 | `-h, --help` | Exibe a ajuda |
 
@@ -72,7 +72,7 @@ closeappsopen --all -e explorer
 # Fecha tudo exceto Chrome e Slack
 closeappsopen -a -e chrome -e slack
 
-# Aguarda 5 segundos antes de forçar o encerramento
+# Aguarda até 5 segundos pelo fechamento; apps ainda abertos permanecem abertos
 closeappsopen --timeout 5000 --all
 
 # Fecha tudo e desliga o PC (com confirmação)
@@ -100,11 +100,12 @@ Sem argumentos, abre um menu com a lista de aplicativos abertos:
 ## Comportamento
 
 - Lista apenas janelas visíveis com título
-- Por padrão tenta fechar graciosamente (`CloseMainWindow`) antes de forçar (`Kill`)
-- Aguarda o tempo configurado em `--timeout` antes de forçar
+- Por padrão tenta fechar graciosamente (`CloseMainWindow`) e aguarda até `--timeout`; aplicativos que não saírem permanecem abertos e contam como falha
+- O encerramento forçado (`Kill`) ocorre somente com `--force` e também exige confirmação de que o processo terminou dentro do tempo limite
 - Com `--force`, mata direto (`Kill`) sem `CloseMainWindow` — não pede confirmação **e** não dispara diálogos de "salvar?" (descarta trabalho não salvo)
 - Exibe o resultado com quantos foram fechados e quantos falharam
-- Retorna código de saída `0` em sucesso e `1` em falha (útil em scripts)
+- `--shutdown` só inicia o desligamento se todos os aplicativos selecionados forem fechados; uma falha impede o desligamento
+- Retorna código de saída `0` em sucesso, `1` em falha ao fechar/desligar e `2` para argumentos inválidos (útil em scripts)
 
 ## Requisitos
 

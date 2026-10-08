@@ -3,7 +3,16 @@ using CloseAppsOpen;
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 Console.Title = "CloseAppsOpen";
 
-var cli = CliArgs.Parse(Environment.GetCommandLineArgs()[1..]);
+CliArgs cli;
+try
+{
+	cli = CliArgs.Parse(Environment.GetCommandLineArgs()[1..]);
+}
+catch (ArgumentException ex)
+{
+	ConsoleUI.Print(ex.Message, ConsoleColor.Red);
+	return 2;
+}
 
 if (cli.Help)
 {
@@ -37,24 +46,23 @@ if (cli.CloseAll)
 	if (!cli.Force && !ConsoleUI.Confirm(action))
 		return 0;
 
-	if (procs.Count > 0)
-		ProcessManager.Close(procs, cli.Timeout, cli.Force);
-
-	if (cli.Shutdown)
-	{
-		ConsoleUI.Print("  Desligando o PC...", ConsoleColor.Red);
-		PowerManager.Shutdown();
-	}
-
-	return 0;
+	bool succeeded = CloseWorkflow.Run(
+		() => procs.Count == 0 || ProcessManager.Close(procs, cli.Timeout, cli.Force),
+		cli.Shutdown,
+		() =>
+		{
+			ConsoleUI.Print("  Desligando o PC...", ConsoleColor.Red);
+			return PowerManager.Shutdown();
+		});
+	if (!succeeded && cli.Shutdown)
+		ConsoleUI.Print("  Desligamento cancelado ou não iniciado: houve falha no fechamento ou no comando de desligamento.", ConsoleColor.Red);
+	return succeeded ? 0 : 1;
 }
 
 if (cli.Kill.Count > 0)
 {
 	var all = ProcessManager.GetVisible(cli.Exclude);
-	var targets = all.Where(p =>
-		cli.Kill.Any(k => p.Name.Contains(k, StringComparison.OrdinalIgnoreCase) ||
-						  p.Title.Contains(k, StringComparison.OrdinalIgnoreCase))).ToList();
+	var targets = ProcessSelection.ByFilter(all, cli.Kill);
 
 	if (targets.Count == 0)
 	{
@@ -68,5 +76,4 @@ if (cli.Kill.Count > 0)
 	return ProcessManager.Close(targets, cli.Timeout, cli.Force) ? 0 : 1;
 }
 
-InteractiveMode.Run(cli);
-return 0;
+return InteractiveMode.Run(cli) ? 0 : 1;
