@@ -4,15 +4,11 @@ namespace CloseAppsOpen;
 
 static class PowerManager
 {
-    public static bool Shutdown(int delaySeconds = 0)
+    public static bool Shutdown(int delaySeconds = 0, bool force = false)
     {
         try
         {
-            using var process = Process.Start(new ProcessStartInfo("shutdown", $"/s /t {delaySeconds} /c \"Desligando via CloseAppsOpen\"")
-            {
-                CreateNoWindow = true,
-                UseShellExecute = false
-            });
+            using var process = Process.Start(CreateShutdownStartInfo(delaySeconds, force));
             if (process is null) return false;
             process.WaitForExit();
             return process.ExitCode == 0;
@@ -21,6 +17,22 @@ static class PowerManager
         {
             return false;
         }
+    }
+
+    internal static ProcessStartInfo CreateShutdownStartInfo(int delaySeconds, bool force)
+    {
+        var info = new ProcessStartInfo("shutdown")
+        {
+            CreateNoWindow = true,
+            UseShellExecute = false
+        };
+        info.ArgumentList.Add("/s");
+        if (force) info.ArgumentList.Add("/f");
+        info.ArgumentList.Add("/t");
+        info.ArgumentList.Add(delaySeconds.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        info.ArgumentList.Add("/c");
+        info.ArgumentList.Add("Desligando via CloseAppsOpen");
+        return info;
     }
 
     public static void CancelShutdown()

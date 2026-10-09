@@ -120,7 +120,7 @@ static class ConsoleUI
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine("  [A] Fechar Todos    [S] Selecionar    [R] Atualizar    [Q] Sair");
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("  [D] Fechar Tudo e Desligar PC");
+        Console.WriteLine("  [D] Forçar Fechamento e Desligar PC");
         Console.ResetColor();
         Console.Write("\n  Opção: ");
     }

@@ -93,7 +93,7 @@ Sem argumentos, abre um menu com a lista de aplicativos abertos:
 |-------|------|
 | `A` | Fecha todos os aplicativos listados |
 | `S` | Seleciona quais fechar (por número, nome ou `todos`) |
-| `D` | Fecha tudo e desliga o PC |
+| `D` | Após confirmação, força o fechamento dos apps e desliga o PC; alterações não salvas são perdidas |
 | `R` | Atualiza a lista |
 | `Q` | Sai |
 
@@ -101,10 +101,11 @@ Sem argumentos, abre um menu com a lista de aplicativos abertos:
 
 - Lista apenas janelas visíveis com título
 - Por padrão tenta fechar graciosamente (`CloseMainWindow`) e aguarda até `--timeout`; aplicativos que não saírem permanecem abertos e contam como falha
-- O encerramento forçado (`Kill`) ocorre somente com `--force` e também exige confirmação de que o processo terminou dentro do tempo limite
+- O encerramento forçado (`Kill`) ocorre com `--force` ou ao escolher `D` no menu e exige confirmação de que o processo terminou dentro do tempo limite
 - Com `--force`, mata direto (`Kill`) sem `CloseMainWindow` — não pede confirmação **e** não dispara diálogos de "salvar?" (descarta trabalho não salvo)
 - Exibe o resultado com quantos foram fechados e quantos falharam
 - `--shutdown` só inicia o desligamento se todos os aplicativos selecionados forem fechados; uma falha impede o desligamento
+- No menu interativo, `D` solicita um desligamento forçado do Windows após fechar os aplicativos listados; uma falha no fechamento impede o desligamento
 - Retorna código de saída `0` em sucesso, `1` em falha ao fechar/desligar e `2` para argumentos inválidos (útil em scripts)
 
 ## Requisitos

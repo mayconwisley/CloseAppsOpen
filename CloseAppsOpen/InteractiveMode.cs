@@ -22,7 +22,12 @@ static class InteractiveMode
                     succeeded &= SelectAndClose(processes, cli.Timeout, cli.Force);
                     break;
                 case ConsoleKey.D:
-                    return ShutdownAll(processes, cli.Timeout, cli.Force) && succeeded;
+                    return ShutdownAll(
+                        processes,
+                        cli.Timeout,
+                        ProcessManager.Close,
+                        () => PowerManager.Shutdown(force: true),
+                        ConsoleUI.Confirm) && succeeded;
                 case ConsoleKey.R:
                     break;
                 case ConsoleKey.Q:
@@ -31,23 +36,29 @@ static class InteractiveMode
         }
     }
 
-    static bool ShutdownAll(List<(int Pid, string Name, string Title)> processes, int timeout, bool force)
+    internal static bool ShutdownAll(
+        List<(int Pid, string Name, string Title)> processes,
+        int timeout,
+        Func<List<(int Pid, string Name, string Title)>, int, bool, bool> close,
+        Func<bool> powerOff,
+        Func<string, bool> confirm)
     {
         Console.WriteLine();
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("  ATENÇÃO: Esta ação fechará todos os aplicativos e desligará o PC.");
+        Console.WriteLine("  ATENÇÃO: Esta ação forçará o fechamento dos aplicativos e desligará o PC.");
+        Console.WriteLine("  Alterações não salvas serão perdidas.");
         Console.ResetColor();
 
-        if (!ConsoleUI.Confirm("Confirmar desligamento?"))
+        if (!confirm("Confirmar encerramento forçado e desligamento?"))
             return true;
 
         bool succeeded = CloseWorkflow.Run(
-            () => processes.Count == 0 || ProcessManager.Close(processes, timeout, force),
+            () => processes.Count == 0 || close(processes, timeout, true),
             shutdown: true,
             powerOff: () =>
             {
                 ConsoleUI.Print("\n  Desligando o PC...", ConsoleColor.Red);
-                return PowerManager.Shutdown();
+                return powerOff();
             });
         if (!succeeded)
             ConsoleUI.Print("  Desligamento cancelado ou não iniciado: houve falha no fechamento ou no comando de desligamento.", ConsoleColor.Red);
